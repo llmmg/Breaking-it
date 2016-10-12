@@ -6,15 +6,20 @@ import android.media.AudioTrack;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.Console;
+
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.SpectralPeakProcessor;
 import be.tarsos.dsp.io.android.AudioDispatcherFactory;
+import be.tarsos.dsp.onsets.BeatRootSpectralFluxOnsetDetector;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
@@ -63,11 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
         //-------------TEST----------------
         //test of TarsosDSP library
-        testLib();
-
+        //testLib();
+        testLib2();
     }
 
-    public void testLib(){
+    /**
+     * Detect actual sound frequency of the microphone
+     */
+    public void testLib() {
         AudioDispatcher dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
 
         PitchDetectionHandler pdh = new PitchDetectionHandler() {
@@ -86,6 +94,66 @@ public class MainActivity extends AppCompatActivity {
         AudioProcessor p = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pdh);
         dispatcher.addAudioProcessor(p);
         new Thread(dispatcher, "Audio Dispatcher").start();
+
+    }
+
+    public void testLib2() {
+        final SpectralPeakProcessor spectralPeakFollower;
+        spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
+        AudioDispatcher dispatcher2 = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
+        dispatcher2.addAudioProcessor(spectralPeakFollower);
+        dispatcher2.addAudioProcessor(new AudioProcessor() {
+            @Override
+            public boolean process(AudioEvent audioEvent) {
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        float[] magnitudes = spectralPeakFollower.getMagnitudes();
+                        float[] frequencies = spectralPeakFollower.getFrequencyEstimates();
+
+                        double min=magnitudes[0];
+                        double tmpMin=min;
+                        int minId=0;
+                        double max = 0;
+                        double tmp = 0;
+                        int maxInd = 0;
+                        for (int i = 0; i < frequencies.length; i++) {
+                            max = Math.max(magnitudes[i], max);
+                            if (max != tmp) {
+                                maxInd = i;
+                                tmp = max;
+                            }
+                            min=Math.min(magnitudes[i],min);
+                            if(min!=tmpMin)
+                            {
+                                minId=i;
+                                tmpMin=min;
+                            }
+
+                        }
+                        //!\\\ frequencies aren't the harmonique frequencies????
+                        // ===> the frequencies with the higest magnitude are the harmoniques
+                        TextView text = (TextView) findViewById(R.id.textView1);
+                        text.setText("" + frequencies[maxInd]+" Magnitude max/min: "+max+"/"+min);
+                        Log.d("FREQUENCE:", "" + frequencies[maxInd]);
+
+                    }
+                });
+
+                return true;
+            }
+
+            @Override
+            public void processingFinished() {
+
+            }
+        });
+
+        new Thread(dispatcher2, "Audio Dispatcher").start();
+//        dispatcher2.run();
+
     }
 
     @Override
