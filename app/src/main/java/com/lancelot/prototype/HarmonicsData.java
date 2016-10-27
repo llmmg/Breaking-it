@@ -3,7 +3,9 @@ package com.lancelot.prototype;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -21,13 +23,30 @@ public class HarmonicsData implements Runnable {
         return spectre;
     }
 
-    private List spectre;
+    private ArrayList<Float> spectre;
     private AudioDispatcher myDispatcher;
 
     public HarmonicsData() {
         spectre = new ArrayList<Float>();
     }
 
+    public float signalEstimation() {
+        Map<Float, Integer> map = new HashMap<>();
+        for (Float key : spectre) {
+            Integer val = map.get(key);
+            //put 1 if map.get(key) return null else increment
+            map.put(key, val == null ? 1 : val + 1);
+        }
+
+        Map.Entry<Float,Integer> max=null;
+
+        for(Map.Entry<Float,Integer> e:map.entrySet())
+        {
+            if(max==null || e.getValue() > max.getValue())
+                max=e;
+        }
+        return max.getKey();
+    }
 
     @Override
     public void run() {

@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
                     list.add(harmonicsData.getSpectre());
 
                     TextView text = (TextView) findViewById(R.id.textView1);
-                    text.setText("" + list.get(list.size() - 1));
+//                    text.setText("" + list.get(list.size() - 1));
+                    text.setText(""+harmonicsData.signalEstimation());
                 }
                 return false;
             }
