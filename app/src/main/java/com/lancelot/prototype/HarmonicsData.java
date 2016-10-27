@@ -31,15 +31,11 @@ public class HarmonicsData implements Runnable {
 
     @Override
     public void run() {
-        Log.d("test:", "testLib2");
         final SpectralPeakProcessor spectralPeakFollower;
         spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
-//        final AudioDispatcher dispatcher2 = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
         myDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
-//        dispatcher2.addAudioProcessor(spectralPeakFollower);
         myDispatcher.addAudioProcessor(spectralPeakFollower);
 
-//        dispatcher2.addAudioProcessor(new AudioProcessor() {
         myDispatcher.addAudioProcessor(new AudioProcessor() {
             @Override
             public boolean process(AudioEvent audioEvent) {
@@ -85,7 +81,6 @@ public class HarmonicsData implements Runnable {
                         //store data (harmonic)
                         spectre.add(frequencies[maxInd]);
 
-                        //!\\\ frequencies aren't the harmonique frequencies????
                         // ===> the frequencies with the higest magnitude are the harmoniques
                         Log.d("FREQUENCE:", "" + frequencies[maxInd]);
                     }
@@ -97,18 +92,13 @@ public class HarmonicsData implements Runnable {
             @Override
             public void processingFinished() {
                 Log.d("test", "processingFinished");
-
             }
         });
 
-
-//        new Thread(dispatcher2, "Audio Dispatcher2").start();
         new Thread(myDispatcher, "Audio Dispatcher2").start();
-//        return dispatcher2;
     }
 
-    public void stopProcessing()
-    {
+    public void stopProcessing() {
         myDispatcher.stop();
     }
 }
