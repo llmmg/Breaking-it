@@ -1,18 +1,30 @@
 package com.lancelot.prototype;
 
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.Console;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -39,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
 
     Button buttonFreq;
+    Button buttonRecorde;
 
 
     @Override
@@ -46,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        buttonRecorde = (Button) findViewById(R.id.btnRecorde);
         buttonFreq = (Button) findViewById(R.id.buttonPlay);
 
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
@@ -66,10 +80,55 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        buttonRecorde.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                buttonRecorde.setBackgroundColor(Color.RED);
+//            }
+//        });
+
+
+        buttonRecorde.setOnTouchListener(new Button.OnTouchListener() {
+            //TODO: make testLib2 runnable and stopable
+            ExecutorService threadPoolExecutor = Executors.newSingleThreadExecutor();
+            Future longRunTaskFuture;
+
+//            AudioDispatcher disp = testLib2();
+            boolean flag = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    buttonRecorde.setBackgroundColor(Color.RED);
+//                    longRunTaskFuture= threadPoolExecutor.submit(testLib2());
+
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    buttonRecorde.setBackgroundColor(Color.DKGRAY);
+//                    longRunTaskFuture.cancel(true);
+                }
+                return false;
+            }
+        });
+
+
         //-------------TEST----------------
+        //TODO: record sound and compute harmonics while button is down
+
         //test of TarsosDSP library
-        //testLib();
+//        testLib();
+
+//        Thread rec = new Thread(testLib2());
+//        rec.run();
+//
         testLib2();
+
+        //show actives threads
+//        Set<Thread> threadSet=Thread.getAllStackTraces().keySet();
+//        Thread[] threadArray= threadSet.toArray(new Thread[threadSet.size()]);
+//        for (Thread t :threadArray) {
+//            Toast.makeText(this, t.getName(), Toast.LENGTH_SHORT).show();
+//            Log.d("Threads",t.getName());
+//        }
     }
 
     /**
@@ -85,8 +144,9 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView text = (TextView) findViewById(R.id.textView1);
-                        text.setText("" + pitchInHz);
+//                        TextView text = (TextView) findViewById(R.id.textView2);
+//                        text.setText("" + pitchInHz);
+                        Toast.makeText(MainActivity.this, "" + pitchInHz, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -97,27 +157,40 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * @return AudioDispatcher so we can manage Thread(AudioDispatcher...)
+     */
     public void testLib2() {
         final SpectralPeakProcessor spectralPeakFollower;
         spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
-        AudioDispatcher dispatcher2 = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
+        final AudioDispatcher dispatcher2 = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
         dispatcher2.addAudioProcessor(spectralPeakFollower);
         dispatcher2.addAudioProcessor(new AudioProcessor() {
             @Override
             public boolean process(AudioEvent audioEvent) {
-
-
+                    //TODO: replace runOnUiThread by simple thread beacause: Data wont be displayed in real time
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        //TODO: Get/sort the three values with the highest magnitudes
+                        //for a maybe feature to make user able to choose which harmonic to play
+
                         float[] magnitudes = spectralPeakFollower.getMagnitudes();
                         float[] frequencies = spectralPeakFollower.getFrequencyEstimates();
 
-                        double min=magnitudes[0];
-                        double tmpMin=min;
-                        int minId=0;
+                        //min freq value
+                        double min = magnitudes[0];
+                        double tmpMin = min;
+
+                        //index of min value
+                        int minId = 0;
+
+                        //max freq value
                         double max = 0;
                         double tmp = 0;
+
+                        //index of max value
                         int maxInd = 0;
                         for (int i = 0; i < frequencies.length; i++) {
                             max = Math.max(magnitudes[i], max);
@@ -125,18 +198,17 @@ public class MainActivity extends AppCompatActivity {
                                 maxInd = i;
                                 tmp = max;
                             }
-                            min=Math.min(magnitudes[i],min);
-                            if(min!=tmpMin)
-                            {
-                                minId=i;
-                                tmpMin=min;
+                            min = Math.min(magnitudes[i], min);
+                            if (min != tmpMin) {
+                                minId = i;
+                                tmpMin = min;
                             }
 
                         }
                         //!\\\ frequencies aren't the harmonique frequencies????
                         // ===> the frequencies with the higest magnitude are the harmoniques
                         TextView text = (TextView) findViewById(R.id.textView1);
-                        text.setText("" + frequencies[maxInd]+" Magnitude max/min: "+max+"/"+min);
+                        text.setText("" + frequencies[maxInd] + " Magnitude max/min: " + max + "/" + min);
                         Log.d("FREQUENCE:", "" + frequencies[maxInd]);
 
                     }
@@ -151,9 +223,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        new Thread(dispatcher2, "Audio Dispatcher").start();
-//        dispatcher2.run();
 
+        new Thread(dispatcher2, "Audio Dispatcher2").start();
+//        return dispatcher2;
     }
 
     @Override
@@ -187,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //======> A COMPRENDRE
     //Create the sinusoidal sound
     void genTone() {
         // fill out the array

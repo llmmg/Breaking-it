@@ -13,7 +13,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:weightSum="1">
@@ -41,9 +41,52 @@
         </LinearLayout>
 
         <TextView
+            android:text="Spectral frequency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView3" />
+
+        <TextView
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:id="@+id/textView1" />
+
     </LinearLayout>
+
+    <Button
+        android:text="Recorde"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:id="@+id/btnRecorde"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="29dp"
+        android:id="@+id/btnPlay"
+        android:layout_above="@+id/btnRecorde"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Computed value:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="35dp"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/txtViewComputed"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="frequency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtViewComputed"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/textView2" />
 </RelativeLayout>
