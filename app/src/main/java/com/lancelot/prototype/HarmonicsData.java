@@ -3,7 +3,9 @@ package com.lancelot.prototype;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -21,25 +23,38 @@ public class HarmonicsData implements Runnable {
         return spectre;
     }
 
-    private List spectre;
+    private ArrayList<Float> spectre;
     private AudioDispatcher myDispatcher;
 
     public HarmonicsData() {
         spectre = new ArrayList<Float>();
     }
 
+    public float signalEstimation() {
+        Map<Float, Integer> map = new HashMap<>();
+        for (Float key : spectre) {
+            Integer val = map.get(key);
+            //put 1 if map.get(key) return null else increment
+            map.put(key, val == null ? 1 : val + 1);
+        }
+
+        Map.Entry<Float,Integer> max=null;
+
+        for(Map.Entry<Float,Integer> e:map.entrySet())
+        {
+            if(max==null || e.getValue() > max.getValue())
+                max=e;
+        }
+        return max.getKey();
+    }
 
     @Override
     public void run() {
-        Log.d("test:", "testLib2");
         final SpectralPeakProcessor spectralPeakFollower;
         spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
-//        final AudioDispatcher dispatcher2 = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
         myDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
-//        dispatcher2.addAudioProcessor(spectralPeakFollower);
         myDispatcher.addAudioProcessor(spectralPeakFollower);
 
-//        dispatcher2.addAudioProcessor(new AudioProcessor() {
         myDispatcher.addAudioProcessor(new AudioProcessor() {
             @Override
             public boolean process(AudioEvent audioEvent) {
@@ -85,7 +100,6 @@ public class HarmonicsData implements Runnable {
                         //store data (harmonic)
                         spectre.add(frequencies[maxInd]);
 
-                        //!\\\ frequencies aren't the harmonique frequencies????
                         // ===> the frequencies with the higest magnitude are the harmoniques
                         Log.d("FREQUENCE:", "" + frequencies[maxInd]);
                     }
@@ -97,18 +111,13 @@ public class HarmonicsData implements Runnable {
             @Override
             public void processingFinished() {
                 Log.d("test", "processingFinished");
-
             }
         });
 
-
-//        new Thread(dispatcher2, "Audio Dispatcher2").start();
         new Thread(myDispatcher, "Audio Dispatcher2").start();
-//        return dispatcher2;
     }
 
-    public void stopProcessing()
-    {
+    public void stopProcessing() {
         myDispatcher.stop();
     }
 }

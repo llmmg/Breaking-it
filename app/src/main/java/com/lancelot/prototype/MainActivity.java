@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.lancelot.applicationtest.MESSAGE";
 
     Handler handler = new Handler();
-    Handler testHandler = new Handler();
 
     Button buttonFreq;
     Button buttonRecorde;
@@ -72,28 +71,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //list used to display data
         final List list = Collections.synchronizedList(new ArrayList());
         list.add(0.0);
 
-        final HarmonicsData teste = new HarmonicsData();
+        final HarmonicsData harmonicsData = new HarmonicsData();
 
         buttonRecorde.setOnTouchListener(new Button.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-                    new Thread(teste).start();
+                    new Thread(harmonicsData).start();
 
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
 
-                    teste.stopProcessing();
+                    harmonicsData.stopProcessing();
 
                     //TODO: --COMPUTE!-- sort/process returned data (and not whole harmonics...)
                     //LowPass filter?
-                    list.add(teste.getSpectre());
+                    list.add(harmonicsData.getSpectre());
 
                     TextView text = (TextView) findViewById(R.id.textView1);
-                    text.setText("" + list.get(list.size() - 1));
+//                    text.setText("" + list.get(list.size() - 1));
+                    text.setText(""+harmonicsData.signalEstimation());
                 }
                 return false;
             }
