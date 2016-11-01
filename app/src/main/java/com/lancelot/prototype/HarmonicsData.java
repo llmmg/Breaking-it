@@ -2,6 +2,7 @@ package com.lancelot.prototype;
 
 import android.util.Log;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,20 +31,33 @@ public class HarmonicsData implements Runnable {
         spectre = new ArrayList<Float>();
     }
 
+    /**
+     * Clear value
+     */
+    public void clear() {
+        spectre.clear();
+    }
+
+    //TODO: we may found many value for one sound => need to get most recurents values with range
     public float signalEstimation() {
         Map<Float, Integer> map = new HashMap<>();
         for (Float key : spectre) {
+            key=(float)Math.round(key);
             Integer val = map.get(key);
             //put 1 if map.get(key) return null else increment
-            map.put(key, val == null ? 1 : val + 1);
+            if (val == null) {
+                map.put(key, 1);
+            } else {
+                map.put(key, map.get(key) + 1);
+            }
+//            map.put(key, val == null ? 1 : val + 1);
         }
 
-        Map.Entry<Float,Integer> max=null;
+        Map.Entry<Float, Integer> max=null;
 
-        for(Map.Entry<Float,Integer> e:map.entrySet())
-        {
-            if(max==null || e.getValue() > max.getValue())
-                max=e;
+        for (Map.Entry<Float, Integer> e : map.entrySet()) {
+            if (max==null || e.getValue() > max.getValue())
+                max = e;
         }
         return max.getKey();
     }
