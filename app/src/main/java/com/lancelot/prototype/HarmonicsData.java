@@ -20,17 +20,21 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 
 public class HarmonicsData implements Runnable {
 
-    public List getSpectre() {
-        return spectre;
-    }
-
-    private double computedHarmonic;
 
     private ArrayList<Float> spectre;
     private AudioDispatcher myDispatcher;
 
     public HarmonicsData() {
         spectre = new ArrayList<Float>();
+    }
+
+    /**
+     * spectre getter
+     *
+     * @return Harmonics frequency List's
+     */
+    public List getSpectre() {
+        return spectre;
     }
 
     /**
@@ -43,10 +47,16 @@ public class HarmonicsData implements Runnable {
     //TODO: we may found many value for one sound => need to get most recurents values with range
     //Solution: => do an histogram sorted by CLASS rather than value (so we have a 'range')
     //          =>Round value to 0.5 closest value (and to have a class of amplitude 4)
+
+    /**
+     * Get the most recursive value in spectre list
+     * =>Etablish an histogram and extract most recursive value
+     * @return
+     */
     public float signalEstimation() {
         Map<Float, Integer> map = new HashMap<>();
         for (Float key : spectre) {
-            key=(float)(Math.round(key*2)/2.0);
+            key = (float) (Math.round(key * 2) / 2.0);
             Integer val = map.get(key);
             //put 1 if map.get(key) return null else increment
             if (val == null) {
@@ -57,10 +67,10 @@ public class HarmonicsData implements Runnable {
 //            map.put(key, val == null ? 1 : val + 1);
         }
 
-        Map.Entry<Float, Integer> max=null;
+        Map.Entry<Float, Integer> max = null;
 
         for (Map.Entry<Float, Integer> e : map.entrySet()) {
-            if (max==null || e.getValue() > max.getValue())
+            if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
         return max.getKey();

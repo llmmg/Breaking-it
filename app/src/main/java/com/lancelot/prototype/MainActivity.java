@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private final int sampleRate = 8000;
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];
-    private double freqOfTone = 440; // hz
+    private double freqOfTone = 0; // hz
 
     private final byte generatedSnd[] = new byte[2 * numSamples];
 
@@ -62,15 +62,13 @@ public class MainActivity extends AppCompatActivity {
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
-                    EditText editText = (EditText) findViewById(R.id.textFreq);
-                    String value = editText.getText().toString();
-                    if (!value.isEmpty()) {
-                        double newFrequency = Double.parseDouble(value);
-
-                        //read text value and set the frequency with it
-                        freqOfTone = newFrequency;
+                    if (freqOfTone > 0) {
+                        generateSound();
+                    } else {
+                        //print that nothing has been record yet
+                        TextView harmonicText = (TextView) findViewById(R.id.foundFreq);
+                        harmonicText.setText("Please, recorde something first!");
                     }
-                    generateSound();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -85,55 +83,31 @@ public class MainActivity extends AppCompatActivity {
         buttonRecorde.setOnTouchListener(new Button.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                //When button is down, keep recording data
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     new Thread(harmonicsData).start();
 
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                }//when button is released, stop recording and analyse data
+                else if (event.getAction() == MotionEvent.ACTION_UP) {
 
                     harmonicsData.stopProcessing();
 
-                    //TODO: --COMPUTE!-- sort/process returned data (and not whole harmonics...)
-                    //LowPass filter?
-                    list.clear();
-                    list.add(harmonicsData.getSpectre());
+//                    list.clear();
+//                    list.add(harmonicsData.getSpectre());
 
+                    //store harmonic
+                    freqOfTone = harmonicsData.signalEstimation();
 
-                    TextView text = (TextView) findViewById(R.id.textView1);
-//                    text.setText("" + list.get(list.size() - 1));
-                    text.setText(""+harmonicsData.signalEstimation());
-//                    Log.i("estimation",""+harmonicsData.signalEstimation());
-                    Log.i("datas:",""+list);
+                    TextView text = (TextView) findViewById(R.id.foundFreq);
+                    text.setText("" + harmonicsData.signalEstimation());
 
                     //clear old datas
                     harmonicsData.clear();
-
                 }
                 return false;
             }
         });
     }
-
-//    /**
-//     * test function used to store calculed harmonics in file in prevent to have a better understanding of theses values...
-//     * @param data list computed (idealy HarmonicsData.getSpectre)
-//     */
-//    public void writeInFile(List data)
-//    {
-//        try{
-//            FileWriter writer= new FileWriter("Data.txt");
-//
-//            for(Object f:data)
-//            {
-//                writer.write(f.toString());
-//            }
-//            writer.close();
-//
-//        }catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-
-//    }
 
     /**
      * Detect actual sound frequency of the microphone
