@@ -24,6 +24,8 @@ public class HarmonicsData implements Runnable {
         return spectre;
     }
 
+    private double computedHarmonic;
+
     private ArrayList<Float> spectre;
     private AudioDispatcher myDispatcher;
 
@@ -39,10 +41,12 @@ public class HarmonicsData implements Runnable {
     }
 
     //TODO: we may found many value for one sound => need to get most recurents values with range
+    //Solution: => do an histogram sorted by CLASS rather than value (so we have a 'range')
+    //          =>Round value to 0.5 closest value (and to have a class of amplitude 4)
     public float signalEstimation() {
         Map<Float, Integer> map = new HashMap<>();
         for (Float key : spectre) {
-            key=(float)Math.round(key);
+            key=(float)(Math.round(key*2)/2.0);
             Integer val = map.get(key);
             //put 1 if map.get(key) return null else increment
             if (val == null) {
@@ -72,12 +76,10 @@ public class HarmonicsData implements Runnable {
         myDispatcher.addAudioProcessor(new AudioProcessor() {
             @Override
             public boolean process(AudioEvent audioEvent) {
-                Log.d("test:", "process");
                 //TODO: replace runOnUiThread by simple thread beacause: Data wont be displayed in real time
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("test:", "run");
                         //TODO: Get/sort the three values with the highest magnitudes
                         //for a maybe feature to make user able to choose which harmonic to play
 
@@ -115,7 +117,7 @@ public class HarmonicsData implements Runnable {
                         spectre.add(frequencies[maxInd]);
 
                         // ===> the frequencies with the higest magnitude are the harmoniques
-                        Log.d("FREQUENCE:", "" + frequencies[maxInd]);
+//                        Log.d("FREQUENCE:", "" + frequencies[maxInd]);
                     }
                 });
                 t.run();

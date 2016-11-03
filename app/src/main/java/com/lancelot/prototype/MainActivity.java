@@ -1,5 +1,6 @@
 package com.lancelot.prototype;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -15,6 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         buttonRecorde = (Button) findViewById(R.id.btnRecorde);
         buttonFreq = (Button) findViewById(R.id.buttonPlay);
 
+        //Play the computed frequency
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -74,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         //list used to display data
         final List list = Collections.synchronizedList(new ArrayList());
-        list.add(0.0);
 
         final HarmonicsData harmonicsData = new HarmonicsData();
 
@@ -90,19 +94,46 @@ public class MainActivity extends AppCompatActivity {
 
                     //TODO: --COMPUTE!-- sort/process returned data (and not whole harmonics...)
                     //LowPass filter?
+                    list.clear();
                     list.add(harmonicsData.getSpectre());
+
 
                     TextView text = (TextView) findViewById(R.id.textView1);
 //                    text.setText("" + list.get(list.size() - 1));
                     text.setText(""+harmonicsData.signalEstimation());
-                    Log.i("estimation",""+harmonicsData.signalEstimation());
+//                    Log.i("estimation",""+harmonicsData.signalEstimation());
+                    Log.i("datas:",""+list);
+
                     //clear old datas
                     harmonicsData.clear();
+
                 }
                 return false;
             }
         });
     }
+
+//    /**
+//     * test function used to store calculed harmonics in file in prevent to have a better understanding of theses values...
+//     * @param data list computed (idealy HarmonicsData.getSpectre)
+//     */
+//    public void writeInFile(List data)
+//    {
+//        try{
+//            FileWriter writer= new FileWriter("Data.txt");
+//
+//            for(Object f:data)
+//            {
+//                writer.write(f.toString());
+//            }
+//            writer.close();
+//
+//        }catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+
+//    }
 
     /**
      * Detect actual sound frequency of the microphone
