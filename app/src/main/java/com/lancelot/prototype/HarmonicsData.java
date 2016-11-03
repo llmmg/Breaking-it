@@ -16,6 +16,8 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 
 /**
  * Created by Lancelot on 27.10.2016.
+ * <p>
+ * This class can find harmonic frequency of a sound
  */
 
 public class HarmonicsData implements Runnable {
@@ -24,6 +26,9 @@ public class HarmonicsData implements Runnable {
     private ArrayList<Float> spectre;
     private AudioDispatcher myDispatcher;
 
+    /**
+     * Constructor
+     */
     public HarmonicsData() {
         spectre = new ArrayList<Float>();
     }
@@ -38,7 +43,7 @@ public class HarmonicsData implements Runnable {
     }
 
     /**
-     * Clear value
+     * Clear value stored in spectre list
      */
     public void clear() {
         spectre.clear();
@@ -49,32 +54,35 @@ public class HarmonicsData implements Runnable {
     //          =>Round value to 0.5 closest value (and to have a class of amplitude 4)
 
     /**
-     * Get the most recursive value in spectre list
+     * Get the most recurrent value in spectre list
      * =>Etablish an histogram and extract most recursive value
-     * @return
+     * ==>Values are rounded to 0.5 to group them by class
+     *
+     * @return most recurrent frequency == harmonic frequency
      */
     public float signalEstimation() {
-        Map<Float, Integer> map = new HashMap<>();
+        //map used as histogram
+        Map<Float, Integer> histogram = new HashMap<>();
         for (Float key : spectre) {
             key = (float) (Math.round(key * 2) / 2.0);
-            Integer val = map.get(key);
+            Integer val = histogram.get(key);
             //put 1 if map.get(key) return null else increment
             if (val == null) {
-                map.put(key, 1);
+                histogram.put(key, 1);
             } else {
-                map.put(key, map.get(key) + 1);
+                histogram.put(key, histogram.get(key) + 1);
             }
 //            map.put(key, val == null ? 1 : val + 1);
         }
-
         Map.Entry<Float, Integer> max = null;
 
-        for (Map.Entry<Float, Integer> e : map.entrySet()) {
+        for (Map.Entry<Float, Integer> e : histogram.entrySet()) {
             if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
         return max.getKey();
     }
+
 
     @Override
     public void run() {
@@ -86,7 +94,6 @@ public class HarmonicsData implements Runnable {
         myDispatcher.addAudioProcessor(new AudioProcessor() {
             @Override
             public boolean process(AudioEvent audioEvent) {
-                //TODO: replace runOnUiThread by simple thread beacause: Data wont be displayed in real time
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -115,12 +122,6 @@ public class HarmonicsData implements Runnable {
                                 maxInd = i;
                                 tmp = max;
                             }
-                            //is the min value usefull? maybe for later data process...
-                            min = Math.min(magnitudes[i], min);
-                            if (min != tmpMin) {
-                                minId = i;
-                                tmpMin = min;
-                            }
                         }
 
                         //store data (harmonic)
@@ -143,6 +144,9 @@ public class HarmonicsData implements Runnable {
         new Thread(myDispatcher, "Audio Dispatcher2").start();
     }
 
+    /**
+     * Stop AudioDispatcher processing (sound recordind)
+     */
     public void stopProcessing() {
         myDispatcher.stop();
     }

@@ -55,13 +55,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Recorde button
         buttonRecorde = (Button) findViewById(R.id.btnRecorde);
+        //Play sound button
         buttonFreq = (Button) findViewById(R.id.buttonPlay);
 
         //Play the computed frequency
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
+                    //freqOfTone is initialised at 0.
                     if (freqOfTone > 0) {
                         generateSound();
                     } else {
@@ -75,9 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //list used to display data
-        final List list = Collections.synchronizedList(new ArrayList());
-
+        //"Tool" Object to get harmonics frequencies
         final HarmonicsData harmonicsData = new HarmonicsData();
 
         buttonRecorde.setOnTouchListener(new Button.OnTouchListener() {
@@ -90,10 +91,8 @@ public class MainActivity extends AppCompatActivity {
                 }//when button is released, stop recording and analyse data
                 else if (event.getAction() == MotionEvent.ACTION_UP) {
 
+                    //stop audio processing
                     harmonicsData.stopProcessing();
-
-//                    list.clear();
-//                    list.add(harmonicsData.getSpectre());
 
                     //store harmonic
                     freqOfTone = harmonicsData.signalEstimation();
@@ -107,32 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    /**
-     * Detect actual sound frequency of the microphone
-     */
-    public void testLib() {
-        AudioDispatcher dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
-
-        PitchDetectionHandler pdh = new PitchDetectionHandler() {
-            @Override
-            public void handlePitch(PitchDetectionResult result, AudioEvent e) {
-                final float pitchInHz = result.getPitch();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        TextView text = (TextView) findViewById(R.id.textView2);
-//                        text.setText("" + pitchInHz);
-                        Toast.makeText(MainActivity.this, "" + pitchInHz, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        };
-        AudioProcessor p = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pdh);
-        dispatcher.addAudioProcessor(p);
-        new Thread(dispatcher, "Audio Dispatcher").start();
-
     }
 
     @Override
@@ -164,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         });
         thread.start();
     }
-
 
     //Create the sinusoidal sound
     void genTone() {
