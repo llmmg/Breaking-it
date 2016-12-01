@@ -87,6 +87,7 @@ public class HarmonicsData implements Runnable {
     @Override
     public void run() {
         final SpectralPeakProcessor spectralPeakFollower;
+        //TODO: check microphone quality
         spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
         myDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
         myDispatcher.addAudioProcessor(spectralPeakFollower);

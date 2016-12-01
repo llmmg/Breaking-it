@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button buttonFreq;
     Button buttonRecorde;
+    Button buttonStop;
 
     Handler handler= new Handler();
 
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         buttonRecorde = (Button) findViewById(R.id.btnRecorde);
         //Play sound button
         buttonFreq = (Button) findViewById(R.id.buttonPlay);
+        //Sound stop button
+        buttonStop=(Button) findViewById(R.id.buttonStop);
 
         final Sound sound= new Sound(handler);
         final TestSoundPlay testSoundPlay= new TestSoundPlay();
@@ -60,9 +63,12 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     //freqOfTone is initialised at 0.
                     if (freqOfTone > 0) {
-                        sound.setFreqOfTone(freqOfTone);
-                        sound.generateSound();
+//                        sound.setFreqOfTone(freqOfTone);
+//                        sound.generateSound();
 
+                        //TEST
+                        testSoundPlay.setFreq(freqOfTone);
+                        new Thread(testSoundPlay).start();
 //                            testSoundPlay.play(440,44100);
                     } else {
                         //print that nothing has been record yet
@@ -74,6 +80,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        buttonStop.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                testSoundPlay.stop();
+            }
+        });
+
 
         //"Tool" Object to get harmonics frequencies
         final HarmonicsData harmonicsData = new HarmonicsData();
