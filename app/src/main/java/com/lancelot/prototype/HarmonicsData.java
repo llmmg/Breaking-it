@@ -92,6 +92,14 @@ public class HarmonicsData implements Runnable {
         myDispatcher.addAudioProcessor(spectralPeakFollower);
 
         myDispatcher.addAudioProcessor(new AudioProcessor() {
+            /**
+             * Compute spectral frequency
+             * An array of frequencies and one of magnitude is generated from spectralPeakProcessor object.
+             * Then the value with the highest magnitude == harmonic frequency
+             * index of two arrays is shared => magnitudes[i] is the magnitude of frequencies[i]...)
+             * @param audioEvent
+             * @return
+             */
             @Override
             public boolean process(AudioEvent audioEvent) {
                 Thread t = new Thread(new Runnable() {
