@@ -15,15 +15,17 @@ import android.widget.TextView;
 /**
  * Object that play sine generated sound
  */
-public class Sound {
+public class Sound implements Runnable{
 
-    private final int duration = 3; // seconds
-    private final int sampleRate = 8000;
+    private final int duration = 2; // seconds
+    private final int sampleRate = 44100;
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];
     private double freqOfTone = 0; // hz
 
     private final byte generatedSnd[] = new byte[2 * numSamples];
+
+    private AudioTrack audioTrack;
 
     Handler handler;
 
@@ -80,11 +82,27 @@ public class Sound {
 
     private void playSound() {
         //16bits=> precisions d'un échantillon
-        final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
                 AudioTrack.MODE_STATIC);
         audioTrack.write(generatedSnd, 0, generatedSnd.length);
+
+        //set loop points
+        audioTrack.setLoopPoints(0,numSamples,-1);
+
         audioTrack.play();
+    }
+
+    @Override
+    public void run() {
+        generateSound();
+    }
+
+
+    public void stop(){
+        audioTrack.stop();
+        audioTrack.flush();
+        audioTrack.release();
     }
 }

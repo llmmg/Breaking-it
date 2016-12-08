@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     Button buttonRecorde;
     Button buttonStop;
 
-    Handler handler= new Handler();
+    Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
         //Play sound button
         buttonFreq = (Button) findViewById(R.id.buttonPlay);
         //Sound stop button
-        buttonStop=(Button) findViewById(R.id.buttonStop);
+        buttonStop = (Button) findViewById(R.id.buttonStop);
 
-        final Sound sound= new Sound(handler);
-        final TestSoundPlay testSoundPlay= new TestSoundPlay();
+        //sound object used to play sound
+        final Sound sound = new Sound(handler);
 
         //Play the computed frequency
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
@@ -63,13 +63,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     //freqOfTone is initialised at 0.
                     if (freqOfTone > 0) {
-//                        sound.setFreqOfTone(freqOfTone);
+                        sound.setFreqOfTone(freqOfTone);
 //                        sound.generateSound();
+                        new Thread(sound).start();
 
-                        //TEST
-                        testSoundPlay.setFreq(freqOfTone);
-                        new Thread(testSoundPlay).start();
-//                            testSoundPlay.play(440,44100);
                     } else {
                         //print that nothing has been record yet
                         TextView harmonicText = (TextView) findViewById(R.id.foundFreq);
@@ -81,10 +78,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonStop.setOnClickListener(new Button.OnClickListener(){
+        //Stop audio
+        buttonStop.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testSoundPlay.stop();
+                sound.stop();
             }
         });
 
@@ -131,56 +129,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
     }
-
-//    //Play the sound
-//    public void generateSound() {
-//        // Use a new tread as this can take a while
-//        final Thread thread = new Thread(new Runnable() {
-//            public void run() {
-//                genTone();
-//                handler.post(new Runnable() {
-//
-//                    public void run() {
-//                        playSound();
-//                    }
-//                });
-//            }
-//        });
-//        thread.start();
-//    }
-//
-//    //Create the sinusoidal sound
-//    void genTone() {
-//        // fill out the array
-//        for (int i = 0; i < numSamples; ++i) {
-//            //y(t)=ASin(2PI*f*t)
-//            //i===t, (sampleRate/freqOfTone)==T freqOfTone==oscillations/sec,
-////          //sampleRate== measures/sec
-//            sample[i] = Math.sin(2 * Math.PI * i / (sampleRate / freqOfTone));
-//        }
-//
-//        // convert to 16 bit pcm sound array
-//        // assumes the sample buffer is normalised.
-//        int idx = 0;
-//        for (final double dVal : sample) {
-//            // scale to maximum amplitude
-//            // (2^15 => precision est 2^16/2 pour couvrir l'apmplitude/2 (valeurs négatives))
-//            final short val = (short) ((dVal * 32767));
-//            // in 16 bit wav PCM, first byte is the low order byte
-//            generatedSnd[idx++] = (byte) (val & 0x00ff);
-//            generatedSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-//
-//        }
-//    }
-//
-//    void playSound() {
-//        //16bits=> precisions d'un échantillon
-//        final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-//                sampleRate, AudioFormat.CHANNEL_OUT_MONO,
-//                AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
-//                AudioTrack.MODE_STATIC);
-//        audioTrack.write(generatedSnd, 0, generatedSnd.length);
-//        audioTrack.play();
-//    }
 
 }
