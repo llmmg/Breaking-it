@@ -157,6 +157,11 @@ public class HarmonicsData implements Runnable {
      * Stop AudioDispatcher processing (sound recordind)
      */
     public void stopProcessing() {
-        myDispatcher.stop();
+        try{
+            myDispatcher.stop();
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

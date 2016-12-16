@@ -18,7 +18,7 @@ import android.widget.TextView;
 public class Sound implements Runnable{
 
     private final int duration = 2; // seconds
-    private final int sampleRate = 44100;
+    private final int sampleRate = 44100; //samples per seconds
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];
     private double freqOfTone = 0; // hz

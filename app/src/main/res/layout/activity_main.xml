@@ -35,17 +35,57 @@
             <TextView
                 android:text="Spectral frequency"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/textView3"
                 android:layout_weight="1" />
 
             <TextView
-                android:text="TextView"
+                android:text="waiting"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginBottom="10dp"
                 android:id="@+id/foundFreq"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:gravity="center_vertical"
+                android:typeface="monospace"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/linearLayout"
+            android:layout_alignParentStart="true">
+
+            <TextView
+                android:text="Frequency offset"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textView2"
+                android:gravity="center_vertical"
+                android:layout_weight="1"/>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:text="Down"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnDownOffset"
+                    android:layout_weight="0.38" />
+
+                <Button
+                    android:text="Up"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnUpOffset" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

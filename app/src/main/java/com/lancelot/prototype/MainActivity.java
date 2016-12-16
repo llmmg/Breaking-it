@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     Button buttonFreq;
     Button buttonRecorde;
     Button buttonStop;
+    Button buttonUp;
+    Button buttonDown;
 
     Handler handler = new Handler();
 
@@ -54,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
         //Sound stop button
         buttonStop = (Button) findViewById(R.id.buttonStop);
 
+        //Buttons for offset
+        //button up
+        buttonUp= (Button) findViewById(R.id.btnUpOffset);
+        //button down
+        buttonDown= (Button) findViewById(R.id.btnDownOffset);
+
         //sound object used to play sound
         final Sound sound = new Sound(handler);
 
@@ -61,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         buttonFreq.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
+                    //the frequency can't be change when sound is playing
+                    buttonDown.setEnabled(false);
+                    buttonUp.setEnabled(false);
                     //freqOfTone is initialised at 0.
                     if (freqOfTone > 0) {
                         sound.setFreqOfTone(freqOfTone);
@@ -83,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sound.stop();
+
+                //enable buttons to change frequency
+                buttonDown.setEnabled(true);
+                buttonUp.setEnabled(true);
             }
         });
 
@@ -113,6 +128,27 @@ public class MainActivity extends AppCompatActivity {
                     harmonicsData.clear();
                 }
                 return false;
+            }
+        });
+
+        //increment frequency by 0.5
+        buttonUp.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                freqOfTone+=0.5;
+
+                TextView text = (TextView) findViewById(R.id.foundFreq);
+                text.setText("" + freqOfTone);
+            }
+        });
+
+        //decrement frequency by 0.5
+        buttonDown.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                freqOfTone-=0.5;
+                TextView text = (TextView) findViewById(R.id.foundFreq);
+                text.setText("" + freqOfTone);
             }
         });
     }
