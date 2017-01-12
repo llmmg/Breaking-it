@@ -80,7 +80,11 @@ public class HarmonicsData implements Runnable {
             if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
-        return max.getKey();
+        if(max!=null)
+        {
+            return max.getKey();
+        }
+        return 0;
     }
 
 

@@ -1,42 +1,26 @@
 package com.lancelot.prototype;
 
+import android.Manifest;
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
+import android.content.pm.PackageManager;
+
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-
-import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.AudioEvent;
-import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.io.android.AudioDispatcherFactory;
-import be.tarsos.dsp.pitch.PitchDetectionHandler;
-import be.tarsos.dsp.pitch.PitchDetectionResult;
-import be.tarsos.dsp.pitch.PitchProcessor;
-
 public class MainActivity extends AppCompatActivity {
 
     private double freqOfTone = 0; // hz
+    private final int REQUEST_ACCESS_MIC = 1;
 
-    Button buttonFreq;
+    Button buttonPlay;
     Button buttonRecorde;
     Button buttonStop;
     Button buttonUp;
@@ -49,26 +33,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Ask for microphone permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_ACCESS_MIC);
+        }
+
         //Recorde button
         buttonRecorde = (Button) findViewById(R.id.btnRecorde);
         //Play sound button
-        buttonFreq = (Button) findViewById(R.id.buttonPlay);
+        buttonPlay = (Button) findViewById(R.id.buttonPlay);
+        //by default, buttonPlay is disabled
+        buttonPlay.setEnabled(false);
+
         //Sound stop button
         buttonStop = (Button) findViewById(R.id.buttonStop);
+        //by default, stop btn is disabled, it's enabled when play button is pressed
+        buttonStop.setEnabled(false);
 
         //Buttons for offset
         //button up
-        buttonUp= (Button) findViewById(R.id.btnUpOffset);
+        buttonUp = (Button) findViewById(R.id.btnUpOffset);
         //button down
-        buttonDown= (Button) findViewById(R.id.btnDownOffset);
+        buttonDown = (Button) findViewById(R.id.btnDownOffset);
 
         //sound object used to play sound
         final Sound sound = new Sound(handler);
 
         //Play the computed frequency
-        buttonFreq.setOnClickListener(new Button.OnClickListener() {
+        buttonPlay.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 try {
+                    //disable this button
+                    buttonPlay.setEnabled(false);
+                    //enable stop button
+                    buttonStop.setEnabled(true);
+                    //disable rec button
+                    buttonRecorde.setEnabled(false);
+
                     //the frequency can't be change when sound is playing
                     buttonDown.setEnabled(false);
                     buttonUp.setEnabled(false);
@@ -98,19 +99,32 @@ public class MainActivity extends AppCompatActivity {
                 //enable buttons to change frequency
                 buttonDown.setEnabled(true);
                 buttonUp.setEnabled(true);
+
+                //disable this button
+                buttonStop.setEnabled(false);
+                //enable rec button
+                buttonRecorde.setEnabled(true);
+                //enable play button
+                buttonPlay.setEnabled(true);
+
             }
         });
 
 
         //"Tool" Object to get harmonics frequencies
         final HarmonicsData harmonicsData = new HarmonicsData();
-
         buttonRecorde.setOnTouchListener(new Button.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 //When button is down, keep recording data
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     new Thread(harmonicsData).start();
+
+                    //disable play buttons
+                    buttonPlay.setEnabled(false);
+//                    buttonStop.setEnabled(false);
+//                    buttonUp.setEnabled(false);
+//                    buttonDown.setEnabled(false);
 
                 }//when button is released, stop recording and analyse data
                 else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -126,16 +140,25 @@ public class MainActivity extends AppCompatActivity {
 
                     //clear old datas
                     harmonicsData.clear();
+
+                    //Enable other buttons
+                    if(freqOfTone>0)
+                    {
+                        buttonPlay.setEnabled(true);
+//                        buttonStop.setEnabled(true);
+//                        buttonUp.setEnabled(true);
+//                        buttonDown.setEnabled(true);
+                    }
                 }
                 return false;
             }
         });
 
         //increment frequency by 0.5
-        buttonUp.setOnClickListener(new Button.OnClickListener(){
+        buttonUp.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                freqOfTone+=0.5;
+                freqOfTone += 0.5;
 
                 TextView text = (TextView) findViewById(R.id.foundFreq);
                 text.setText("" + freqOfTone);
@@ -146,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         buttonDown.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                freqOfTone-=0.5;
+                freqOfTone -= 0.5;
                 TextView text = (TextView) findViewById(R.id.foundFreq);
                 text.setText("" + freqOfTone);
             }
@@ -164,6 +187,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permission[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_MIC:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(context, "Microphone permission granted!", duration).show();
+                } else {
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(context, "Microphone permission refused! application closed!", duration).show();
+
+                    //TODO:find a way to close completely the application when user refuse permission
+                    this.finish();
+                }
+                return;
+        }
     }
 
 }
