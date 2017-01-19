@@ -30,13 +30,13 @@ public class HarmonicsData implements Runnable {
      * Constructor
      */
     public HarmonicsData() {
-        spectre = new ArrayList<Float>();
+        spectre = new ArrayList<>();
     }
 
     /**
      * spectre getter
      *
-     * @return Harmonics frequency List's
+     * @return Harmonics List
      */
     public List getSpectre() {
         return spectre;
@@ -48,10 +48,6 @@ public class HarmonicsData implements Runnable {
     public void clear() {
         spectre.clear();
     }
-
-    //TODO: we may found many value for one sound => need to get most recurents values with range
-    //Solution: => do an histogram sorted by CLASS rather than value (so we have a 'range')
-    //          =>Round value to 0.5 closest value (and to have a class of amplitude 4)
 
     /**
      * Get the most recurrent value in spectre list
@@ -91,7 +87,6 @@ public class HarmonicsData implements Runnable {
     @Override
     public void run() {
         final SpectralPeakProcessor spectralPeakFollower;
-        //TODO: check microphone quality
         spectralPeakFollower = new SpectralPeakProcessor(1024, 0, 22050);
         myDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
         myDispatcher.addAudioProcessor(spectralPeakFollower);
@@ -110,8 +105,6 @@ public class HarmonicsData implements Runnable {
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        //TODO: Get/sort the three values with the highest magnitudes
-                        //for a maybe feature to make user able to choose which harmonic to play
 
                         float[] magnitudes = spectralPeakFollower.getMagnitudes();
                         float[] frequencies = spectralPeakFollower.getFrequencyEstimates();
@@ -137,7 +130,7 @@ public class HarmonicsData implements Runnable {
                             }
                         }
 
-                        //apparently, there's a bug with some devices whose magnitudes=[-0.0,NaN,NaN...]
+                        //Apparently, there's a bug with some devices whose magnitudes=[-0.0,NaN,NaN...]
                         //and frequencies[maxInd]=11003...
                         //After 4 or 5 process, everything is back to normal
                         if (magnitudes[0] != -0.0) {
