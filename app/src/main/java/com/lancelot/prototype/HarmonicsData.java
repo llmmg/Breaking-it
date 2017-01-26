@@ -142,7 +142,7 @@ public class HarmonicsData implements Runnable {
                             Log.d("FREQUENCE:", "" + frequencies[maxInd]);
                         }
 
-                        //for magnitudes NaN problèmes, check: https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/SpectralPeakProcessor.java
+                        //for magnitudes NaN problems, check: https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/SpectralPeakProcessor.java
 
                     }
                 });

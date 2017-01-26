@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     //freqOfTone is initialised at 0.
                     if (freqOfTone > 0) {
                         sound.setFreqOfTone(freqOfTone);
-//                        sound.generateSound();
+                        //play sound
                         new Thread(sound).start();
 
                     } else {
@@ -120,11 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     new Thread(harmonicsData).start();
 
-                    //disable play buttons
+                    //disable play button
                     buttonPlay.setEnabled(false);
-//                    buttonStop.setEnabled(false);
-//                    buttonUp.setEnabled(false);
-//                    buttonDown.setEnabled(false);
 
                 }//when button is released, stop recording and analyse data
                 else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -136,18 +133,14 @@ public class MainActivity extends AppCompatActivity {
                     freqOfTone = harmonicsData.signalEstimation();
 
                     TextView text = (TextView) findViewById(R.id.foundFreq);
-                    text.setText("" + harmonicsData.signalEstimation());
+                    text.setText("" + freqOfTone);
 
                     //clear old datas
                     harmonicsData.clear();
 
-                    //Enable other buttons
-                    if(freqOfTone>0)
-                    {
+                    //Enable play button
+                    if (freqOfTone > 0) {
                         buttonPlay.setEnabled(true);
-//                        buttonStop.setEnabled(true);
-//                        buttonUp.setEnabled(true);
-//                        buttonDown.setEnabled(true);
                     }
                 }
                 return false;
