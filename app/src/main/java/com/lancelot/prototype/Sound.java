@@ -46,7 +46,6 @@ public class Sound implements Runnable{
             public void run() {
                 genTone();
                 handler.post(new Runnable() {
-
                     public void run() {
                         playSound();
                     }
@@ -71,12 +70,11 @@ public class Sound implements Runnable{
         int idx = 0;
         for (final double dVal : sample) {
             // scale to maximum amplitude
-            // (2^15 => precision est 2^16/2 pour couvrir l'apmplitude/2 (valeurs négatives))
+            // (2^15 => precision is 2^16/2 to cover the amplitude/2 (negative values))
             final short val = (short) ((dVal * 32767));
             // in 16 bit wav PCM, first byte is the low order byte
             generatedSnd[idx++] = (byte) (val & 0x00ff);
             generatedSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-
         }
     }
 

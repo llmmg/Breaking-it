@@ -2,7 +2,6 @@ package com.lancelot.prototype;
 
 import android.util.Log;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,34 +22,34 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 public class HarmonicsData implements Runnable {
 
 
-    private ArrayList<Float> spectre;
+    private ArrayList<Float> harmonicsFound;
     private AudioDispatcher myDispatcher;
 
     /**
      * Constructor
      */
     public HarmonicsData() {
-        spectre = new ArrayList<>();
+        harmonicsFound = new ArrayList<>();
     }
 
     /**
-     * spectre getter
+     * harmonicsFound getter
      *
      * @return Harmonics List
      */
-    public List getSpectre() {
-        return spectre;
+    public List getHarmonicsFound() {
+        return harmonicsFound;
     }
 
     /**
-     * Clear value stored in spectre list
+     * Clear value stored in harmonicsFound list
      */
     public void clear() {
-        spectre.clear();
+        harmonicsFound.clear();
     }
 
     /**
-     * Get the most recurrent value in spectre list
+     * Get the most recurrent value in harmonicsFound list
      * =>Etablish an histogram and extract most recursive value
      * ==>Values are rounded to 0.5 to group them by class
      *
@@ -59,7 +58,7 @@ public class HarmonicsData implements Runnable {
     public float signalEstimation() {
         //map used as histogram
         Map<Float, Integer> histogram = new HashMap<>();
-        for (Float key : spectre) {
+        for (Float key : harmonicsFound) {
             key = (float) (Math.round(key * 2) / 2.0);
             Integer val = histogram.get(key);
             //put 1 if map.get(key) return null else increment
@@ -76,9 +75,12 @@ public class HarmonicsData implements Runnable {
             if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
+
+        //if thread is killed before the end of the method, max may be null
         if (max != null) {
             return max.getKey();
         }
+
         return 0;
     }
 
@@ -136,7 +138,7 @@ public class HarmonicsData implements Runnable {
                         if (magnitudes[0] != -0.0) {
                             //store data (harmonic)
                             // ===> the frequencies with the higest magnitude are the harmoniques
-                            spectre.add(frequencies[maxInd]);
+                            harmonicsFound.add(frequencies[maxInd]);
                         }
 
 
