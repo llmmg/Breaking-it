@@ -76,8 +76,7 @@ public class HarmonicsData implements Runnable {
             if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
-        if(max!=null)
-        {
+        if (max != null) {
             return max.getKey();
         }
         return 0;
@@ -133,16 +132,13 @@ public class HarmonicsData implements Runnable {
                         //Apparently, there's a bug with some devices whose magnitudes=[-0.0,NaN,NaN...]
                         //and frequencies[maxInd]=11003...
                         //After 4 or 5 process, everything is back to normal
+                        // for magnitudes NaN problems, check: https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/SpectralPeakProcessor.java
                         if (magnitudes[0] != -0.0) {
                             //store data (harmonic)
-                            spectre.add(frequencies[maxInd]);
-
-
                             // ===> the frequencies with the higest magnitude are the harmoniques
-                            Log.d("FREQUENCE:", "" + frequencies[maxInd]);
+                            spectre.add(frequencies[maxInd]);
                         }
 
-                        //for magnitudes NaN problems, check: https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/SpectralPeakProcessor.java
 
                     }
                 });

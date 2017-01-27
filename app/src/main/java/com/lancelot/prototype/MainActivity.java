@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     int duration = Toast.LENGTH_LONG;
                     Toast.makeText(context, "Microphone permission refused! application closed!", duration).show();
 
-                    //TODO:find a way to close completely the application when user refuse permission
+                    //close application
                     this.finish();
                 }
                 return;
